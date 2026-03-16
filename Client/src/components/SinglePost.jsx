@@ -108,35 +108,42 @@ function PostDetailPage() {
       <div className="min-h-screen bg-stone-50 py-10 px-6 sm:px-12">
         <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden">
           
-          <div className="w-full h-80 sm:h-[450px] relative bg-stone-100 overflow-hidden group">
+          <div className="w-full h-80 sm:h-[450px] relative bg-stone-900 overflow-hidden group">
             {post.images && post.images.length > 0 ? (
               <>
                 <img 
                   src={post.images[indiceImagen].url} 
+                  alt="" 
+                  className="absolute inset-0 w-full h-full object-cover blur-xl opacity-50 scale-110" 
+                />
+                <img 
+                  src={post.images[indiceImagen].url} 
                   alt={post.title} 
-                  className="w-full h-full object-cover transition-all duration-300" 
+                  className="w-full h-full object-contain relative z-10 transition-all duration-300" 
                 />
                 
                 {post.images.length > 1 && (
                   <>
                     <button 
                       onClick={fotoAnterior}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 cursor-pointer z-20"
                     >
                       &#10094;
                     </button>
                     <button 
                       onClick={fotoSiguiente}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 cursor-pointer z-20"
                     >
                       &#10095;
                     </button>
 
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
                       {post.images.map((img, idx) => (
-                        <div 
+                        <button 
                           key={img.public_id || idx} 
-                          className={`w-2.5 h-2.5 rounded-full transition-all shadow-sm
+                          type="button"
+                          onClick={() => setIndiceImagen(idx)}
+                          className={`w-2.5 h-2.5 rounded-full transition-all shadow-sm cursor-pointer
                             ${idx === indiceImagen ? 'bg-white scale-125' : 'bg-white/50'}`}
                         />
                       ))}
@@ -149,7 +156,7 @@ function PostDetailPage() {
                 Esta publicación no tiene foto
               </div>
             )}
-            <span className={`absolute top-6 left-6 px-4 py-2 rounded-full text-sm font-black text-white shadow-md
+            <span className={`absolute top-6 left-6 px-4 py-2 rounded-full text-sm font-black text-white shadow-md z-20
               ${post.category === 'Lost' ? 'bg-red-500' : post.category === 'Found' ? 'bg-emerald-500' : 'bg-purple-500'}
             `}>
               {estadoEnEspanol}
