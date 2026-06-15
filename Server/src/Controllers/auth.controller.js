@@ -1,5 +1,5 @@
 import User from "../Models/user.model.js";
-import * as authService from "../Services/auth.service.js";
+import * as authService from "../Service/auth.service.js";
 
 const cookieOptions = {
   httpOnly: true,
