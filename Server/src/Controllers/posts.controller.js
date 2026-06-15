@@ -1,10 +1,8 @@
-import Post from "../Models/post.model.js";
-import { uploadImage,deleteImage } from "../Libs/cloudinary.js";
-import fs from "fs-extra";
+import * as postService from "../Services/post.service.js";
 
 export const getPosts = async (req, res) => {
   try {
-    const posts = await Post.find();
+    const posts = await postService.getPostsService();
     res.json(posts);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -15,7 +13,7 @@ export const getPost = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const foundPost = await Post.findById(id).populate("user", "username");
+    const foundPost = await postService.getPostService(id);
 
     if (!foundPost) {
       return res.status(404).json({ message: "Publicación no encontrada" });
@@ -29,37 +27,7 @@ export const getPost = async (req, res) => {
 
 export const createPost = async (req, res) => {
   try {
-
-    const { title, description, category, barrio, lat, lng } = req.body;
-
-    const imageLinks = []; 
-
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const result = await uploadImage(file.path);
-        imageLinks.push({
-          url: result.secure_url,
-          public_id: result.public_id,
-        });
-        await fs.unlink(file.path);
-      }
-    }
-
-    const newPost = new Post({
-      title,
-      description,
-      category,
-      barrio,
-      isActive: true,
-      user: req.user.payload,
-      location: {
-        type: "Point",
-        coordinates: [Number(lng), Number(lat)] 
-      },
-      images: imageLinks,
-    });
-
-    const postSaved = await newPost.save();
+    const postSaved = await postService.createPostService(req.body, req.files, req.user.payload);
     res.json(postSaved);
   } catch (error) {
     console.log("Error:", error);
@@ -67,29 +35,11 @@ export const createPost = async (req, res) => {
   }
 };
 
-
 export const updatePost = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const { title, description, category, barrio, lat, lng } = req.body;
 
-    const datosActualizados = {
-      title,
-      description,
-      category,
-      barrio,
-      location: {
-        type: "Point",
-        coordinates: [Number(lng), Number(lat)] 
-      }
-    };
-
-    const foundPost = await Post.findOneAndUpdate(
-      { _id: id, user: req.user.payload },
-      datosActualizados,
-      { new: true },
-    );
+    const foundPost = await postService.updatePostService(id, req.body, req.user.payload);
 
     if (!foundPost) {
       return res.status(404).json({ message: "Publicación no encontrada" });
@@ -105,21 +55,10 @@ export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const foundPost = await Post.findOneAndDelete({
-      _id: id,
-      user: req.user.payload, //Verificamos aca para que solo el dueño verdadero pueda
-      //borrar la publicacion
-    });
+    const foundPost = await postService.deletePostService(id, req.user.payload);
+    
     if (!foundPost) {
       return res.status(404).json({ message: "Publicación no encontrada" });
-    }
-
-    if (foundPost.images && foundPost.images.length > 0) {
-      for (const image of foundPost.images) {
-        if (image.public_id) {
-          await deleteImage(image.public_id); 
-        }
-      }
     }
 
     return res.sendStatus(204);
@@ -127,6 +66,3 @@ export const deletePost = async (req, res) => {
     res.status(500).json({ message: "Error al Eliminar la publicación" });
   }
 };
-
-
-

@@ -1,17 +1,9 @@
 import Comment from "../Models/comment.model.js";
-
+import * as commentService from "../Services/comment.service.js";
 
 export const createComment = async (req, res) => {
   try {
-    const { content, postId } = req.body;
-
-    const newComment = new Comment({
-      content,
-      user: req.user.payload, 
-      post: postId
-    });
-
-    const savedComment = await newComment.save();
+    const savedComment = await commentService.createCommentService(req.body, req.user.payload);
 
     res.json(savedComment);
 
@@ -52,11 +44,7 @@ export const updateComment = async (req, res) => {
     const { id } = req.params;
     const { content } = req.body;
 
-    const updatedComment = await Comment.findOneAndUpdate(
-      { _id: id, user: req.user.payload }, 
-      { content },
-      { new: true }
-    ).populate("user", "username");
+    const updatedComment = await commentService.updateCommentService(id, content, req.user.payload);
 
     if (!updatedComment) {
       return res.status(404).json({ message: "Comentario no encontrado o no tenés permiso" });
@@ -73,10 +61,7 @@ export const deleteComment = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedComment = await Comment.findOneAndDelete({
-      _id: id,
-      user: req.user.payload,
-    });
+    const deletedComment = await commentService.deleteCommentService(id, req.user.payload);
 
     if (!deletedComment) {
       return res.status(404).json({ message: "Comentario no encontrado o no tenés permiso" });
