@@ -1,4 +1,3 @@
-import Comment from "../Models/comment.model.js";
 import * as commentService from "../Service/comment.service.js";
 
 export const createComment = async (req, res) => {
@@ -12,15 +11,10 @@ export const createComment = async (req, res) => {
   }
 };
 
-
 export const getComments = async (req, res) => {
   try {
     const { postId } = req.params;
-    const comments = await Comment.find({ post: postId })
-      .populate("user", "username"); // acA es donde le estoy pdiiendo el nombre del 
-                                     //que hizo ese comentario, user es lo que tengo en el comment
-                                    //y username es lo que quiero buscar de la coleccion con la que esta
-                                    //conectado ese campo   
+    const comments = await commentService.getCommentsService(postId); 
     
     res.json(comments);
   } catch (error) {
@@ -30,9 +24,7 @@ export const getComments = async (req, res) => {
 
 export const getCommentsFromUser = async (req, res) => {
   try {
-    const comments = await Comment.find({
-        user: req.user.payload
-    });
+    const comments = await commentService.getCommentsFromUserService(req.user.payload);
     res.json(comments);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -55,7 +47,6 @@ export const updateComment = async (req, res) => {
     res.status(500).json({ message: "Error Al aactualizar" });
   }
 };
-
 
 export const deleteComment = async (req, res) => {
   try {

@@ -1,4 +1,3 @@
-import User from "../Models/user.model.js";
 import * as authService from "../Service/auth.service.js";
 
 const cookieOptions = {
@@ -41,20 +40,12 @@ export const logout = async (req, res) => {
 
 export const profile = async (req, res) => {
   try {
-    const userFound = await User.findById(req.user.payload);
-
-    if (!userFound) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-
-    return res.json({
-      id: userFound.id,
-      username: userFound.username,
-      email: userFound.email,
-      createdAt: userFound.createdAt,
-      updatedAt: userFound.updatedAt,
-    });
+    const user = await authService.profileService(req.user.payload);
+    return res.json(user);
   } catch (error) {
+    if (error.message === "Usuario no encontrado") {
+      return res.status(404).json({ message: error.message });
+    }
     return res.status(500).json({ message: error.message });
   }
 };
